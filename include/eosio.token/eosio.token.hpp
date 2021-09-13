@@ -27,9 +27,17 @@ namespace eosio {
         using contract::contract;
 
         struct [[eosio::table]] account {
-            asset    balance;
+           asset    balance;
 
-            uint64_t primary_key()const { return balance.symbol.code().raw(); }
+           uint64_t primary_key()const { return balance.symbol.code().raw(); }
+        };
+
+        struct [[eosio::table]] currency_stats {
+           asset    supply;
+           asset    max_supply;
+           name     issuer;
+
+           uint64_t primary_key()const { return supply.symbol.code().raw(); }
         };
 
         /**
@@ -128,14 +136,6 @@ namespace eosio {
         using open_action = eosio::action_wrapper<"open"_n, &token::open>;
         using close_action = eosio::action_wrapper<"close"_n, &token::close>;
     private:
-        struct [[eosio::table]] currency_stats {
-            asset    supply;
-            asset    max_supply;
-            name     issuer;
-
-            uint64_t primary_key()const { return supply.symbol.code().raw(); }
-        };
-
         typedef eosio::multi_index< "accounts"_n, account > accounts;
         typedef eosio::multi_index< "stat"_n, currency_stats > stats;
 
@@ -143,4 +143,15 @@ namespace eosio {
         void add_balance( const name& owner, const asset& value, const name& ram_payer );
     };
 
+    EOSIO_REFLECT(token::account, balance)
+    EOSIO_REFLECT(token::currency_stats, supply, max_supply, issuer)
+
+    EOSIO_ACTIONS(token,
+                  "eosio.token"_n,
+                  action(create, issuer, maximum_supply),
+                  action(issue, to, quantity, memo),
+                  action(retire, quantity, memo),
+                  action(transfer, from, to, quantity, memo),
+                  action(open, owner, symbol, ram_payer),
+                  action(close, owner, symbol));
 }

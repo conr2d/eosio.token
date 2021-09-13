@@ -161,3 +161,5 @@ namespace eosio {
     }
 
 } /// namespace eosio
+
+EOSIO_ACTION_DISPATCHER(eosio::actions)
